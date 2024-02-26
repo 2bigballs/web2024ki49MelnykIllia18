@@ -1,0 +1,94 @@
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script src="https://accounts.google.com/gsi/client" async></script>
+<script type="text/javascript">
+
+    $(document).ready(function(){
+        $("#login").click(function(e){
+            e.preventDefault();
+            $("#errors").empty();
+            let email = $("#email").val();
+            let password = $("#password").val();
+            
+            $.ajax({
+                url: "login.php",
+                method: "POST",
+                data: {email: email, password: password, type: "common"},
+                cache: false,
+                success: function(data){
+                    window.location.href = "/mainPage.php"
+                },
+                error: function(data){
+                    $("#errors").append(`<div class="error-box"><p>${data.responseText}</p></div>`).show()
+                }
+            })
+        })
+    })
+    
+    async function getGoogleAuthResponse(response){
+        const parsedResponse = JSON.parse(atob(response.credential.split('.')[1]))           
+        const email = parsedResponse.email
+        
+        $("#errors").empty();
+        
+        $.ajax({
+                url: "login.php",
+                method: "POST",
+                data: {email: email, type: "gmail"},
+                cache: false,
+                success: function(data){
+                    window.location.href = "/mainPage.php"
+                },
+                error: function(data){
+                    $("#errors").append(`<div class="error-box"><p>${data.responseText}</p></div>`).show()
+                }
+            })
+    }
+    
+</script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Form</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+    <h2>Login</h2>
+      <form action="login.php" method="post">
+        <div class="form-group">
+            <input type="email" placeholder="Enter Email:" id="email" class="form-control">
+        </div>
+        <div class="form-group">
+            <input type="password" placeholder="Enter Password:" id="password" class="form-control">
+        </div>
+        <div id="errors">
+            
+        </div>
+        <div class="update-btn">
+            <button type="button" class="btn btn-primary" id="login">Login</button>
+        </div>
+      </form>
+    <div id="g_id_onload"
+        data-client_id="455284945917-qqrt075deofq0368c3ir4q498frvld4o.apps.googleusercontent.com"
+        data-context="signin"
+        data-ux_mode="popup"
+        data-callback="getGoogleAuthResponse"
+        data-auto_prompt="false">
+    </div>
+
+    <div class="g_id_signin"
+        data-type="standard"
+        data-shape="rectangular"
+        data-theme="outline"
+        data-text="signin_with"
+        data-size="large"
+        data-logo_alignment="left">
+    </div>
+    <div><p>Not registered yet <a href="registration.html">Register Here</a></p></div>
+    </div>
+</body>
+</html>
